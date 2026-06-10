@@ -3,30 +3,28 @@ include("../config/session_check.php");
 include("../config/dbconnect.php");
 include("../config/layout.php");
 
-if ($_SESSION["role"] != "committee") {
-    header("Location: ../auth/login.php");
+if ($_SESSION["role"] != "admin") {
+    fk_redirect_dashboard_by_role($_SESSION["role"]);
     exit();
 }
 
-$id = $_SESSION["user_id"];
-
-$sql = "SELECT event.*, club.club_name, COUNT(event_registration.registrationID) AS total_registered
+$sql = "SELECT event.*, club.club_name,
+        SUM(CASE WHEN event_registration.registration_status = 'Registered' THEN 1 ELSE 0 END) AS total_registered,
+        SUM(CASE WHEN event_registration.registration_status = 'Waiting List' THEN 1 ELSE 0 END) AS total_waiting
         FROM event
         JOIN club ON event.clubID = club.clubID
         LEFT JOIN event_registration ON event.eventID = event_registration.eventID
-        WHERE event.created_by = '$id'
         GROUP BY event.eventID
         ORDER BY event.event_date DESC";
 $result = mysqli_query($conn, $sql);
 
-page_start("Manage Events", "manage_events");
+page_start("Manage Events", "events");
 ?>
 <div class="page-header">
     <div>
-        <h1>Manage Events</h1>
-        <p class="subtitle">Insert, view, update and delete events.</p>
+        <h1>Event Management Dashboard</h1>
+        <p class="subtitle">View events created by club committee members, including waiting list totals.</p>
     </div>
-    <a class="btn" href="create_event.php">+ Create Event</a>
 </div>
 
 <div class="table-box">
@@ -36,20 +34,17 @@ page_start("Manage Events", "manage_events");
             <th>Club</th>
             <th>Date</th>
             <th>Participants</th>
+            <th>Waiting List</th>
             <th>Status</th>
-            <th>Actions</th>
         </tr>
         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
         <tr>
             <td><b><?php echo clean($row["event_title"]); ?></b><br><small><?php echo clean($row["venue"]); ?></small></td>
             <td><?php echo clean($row["club_name"]); ?></td>
             <td><?php echo clean($row["event_date"]); ?></td>
-            <td><?php echo clean($row["total_registered"]); ?> / <?php echo clean($row["max_participants"]); ?></td>
+            <td><?php echo clean($row["total_registered"] ?? 0); ?> / <?php echo clean($row["max_participants"]); ?></td>
+            <td><span class="badge <?php echo ($row["total_waiting"] ?? 0) > 0 ? "badge-orange" : "badge-gray"; ?>"><?php echo clean($row["total_waiting"] ?? 0); ?> waiting</span></td>
             <td><span class="badge badge-green"><?php echo clean($row["event_status"]); ?></span></td>
-            <td>
-                <a class="btn btn-light btn-small" href="event_edit.php?id=<?php echo clean($row["eventID"]); ?>">Edit</a>
-                <a class="btn btn-red btn-small" href="event_delete.php?id=<?php echo clean($row["eventID"]); ?>" onclick="return confirm('Delete this event?')">Delete</a>
-            </td>
         </tr>
         <?php } ?>
     </table>

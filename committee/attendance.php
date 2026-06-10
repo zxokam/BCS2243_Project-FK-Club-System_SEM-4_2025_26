@@ -4,7 +4,7 @@ include("../config/dbconnect.php");
 include("../config/layout.php");
 
 if ($_SESSION["role"] != "committee") {
-    header("Location: ../auth/login.php");
+    fk_redirect_dashboard_by_role($_SESSION["role"]);
     exit();
 }
 
@@ -20,7 +20,8 @@ $summary = mysqli_fetch_assoc(mysqli_query($conn, "SELECT
         COUNT(event_registration.registrationID) AS registered,
         SUM(CASE WHEN attendance.attendance_status = 'Present On Time' THEN 1 ELSE 0 END) AS present,
         SUM(CASE WHEN attendance.attendance_status = 'Late Arrival' THEN 1 ELSE 0 END) AS late,
-        SUM(CASE WHEN attendance.attendance_status = 'Absent Without Notice' THEN 1 ELSE 0 END) AS absent
+        SUM(CASE WHEN attendance.attendance_status = 'Absent Without Notice' THEN 1 ELSE 0 END) AS absent,
+        SUM(CASE WHEN attendance.attendance_status = 'Volunteer Helper' THEN 1 ELSE 0 END) AS volunteer
         FROM event_registration
         LEFT JOIN attendance ON event_registration.registrationID = attendance.registrationID
         WHERE event_registration.eventID = '$eventID'
@@ -65,6 +66,7 @@ page_start("Attendance", "attendance");
     <?php stat_card("Present", $summary["present"] ?? 0, "✅", "green"); ?>
     <?php stat_card("Late", $summary["late"] ?? 0, "⏰", "orange"); ?>
     <?php stat_card("Absent", $summary["absent"] ?? 0, "❌", "purple"); ?>
+    <?php stat_card("Volunteer", $summary["volunteer"] ?? 0, "⭐", "yellow"); ?>
 </div>
 
 <br>
@@ -98,7 +100,7 @@ page_start("Attendance", "attendance");
             <td>
                 <a class="btn btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Present On Time">Present</a>
                 <a class="btn btn-light btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Late Arrival">Late</a>
-                <a class="btn btn-red btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Absent Without Notice">Absent</a>
+                <a class="btn btn-light btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Volunteer Helper">Volunteer</a>
 
                 <?php if ($row["attendanceID"]) { ?>
                     <a class="btn btn-light btn-small" href="attendance_delete.php?id=<?php echo clean($row["attendanceID"]); ?>&eventID=<?php echo clean($eventID); ?>" onclick="return confirm('Delete attendance record?')">Reset</a>

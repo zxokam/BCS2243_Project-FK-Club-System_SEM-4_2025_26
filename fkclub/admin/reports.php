@@ -4,7 +4,7 @@ include("../config/dbconnect.php");
 include("../config/layout.php");
 
 if ($_SESSION["role"] != "admin") {
-    fk_redirect_dashboard_by_role($_SESSION["role"]);
+    header("Location: ../auth/login.php");
     exit();
 }
 
@@ -25,8 +25,7 @@ ORDER BY event.event_date");
 $count_report = mysqli_query($conn, "SELECT
     club.club_name,
     COUNT(DISTINCT event.eventID) AS total_events,
-    SUM(CASE WHEN event_registration.registration_status = 'Registered' THEN 1 ELSE 0 END) AS total_registrations,
-    SUM(CASE WHEN event_registration.registration_status = 'Waiting List' THEN 1 ELSE 0 END) AS total_waiting,
+    COUNT(event_registration.registrationID) AS total_registrations,
     COALESCE(SUM(attendance.point_earned), 0) AS total_points
 FROM club
 LEFT JOIN event ON club.clubID = event.clubID
@@ -83,13 +82,12 @@ page_start("Reports", "reports");
 <div class="panel">
     <h3>COUNT / SUM Report: Club Activity</h3>
     <table>
-        <tr><th>Club</th><th>Total Events</th><th>Registered</th><th>Waiting List</th><th>Total Points</th></tr>
+        <tr><th>Club</th><th>Total Events</th><th>Total Registrations</th><th>Total Points</th></tr>
         <?php while ($row = mysqli_fetch_assoc($count_report)) { ?>
         <tr>
             <td><?php echo clean($row["club_name"]); ?></td>
             <td><?php echo clean($row["total_events"]); ?></td>
-            <td><?php echo clean($row["total_registrations"] ?? 0); ?></td>
-            <td><?php echo clean($row["total_waiting"] ?? 0); ?></td>
+            <td><?php echo clean($row["total_registrations"]); ?></td>
             <td><?php echo clean($row["total_points"]); ?></td>
         </tr>
         <?php } ?>
