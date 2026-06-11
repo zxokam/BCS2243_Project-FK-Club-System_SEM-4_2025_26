@@ -11,15 +11,11 @@ $id = mysqli_real_escape_string($conn, $_GET["id"] ?? "");
 $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT student_status FROM student WHERE studentID = '$id' LIMIT 1"));
 
 if ($user) {
-    $student_status = $user["student_status"] ?? "Active";
-
-    if ($student_status == "Inactive") {
-        mysqli_query($conn, "DELETE FROM student WHERE studentID = '$id'");
-        header("Location: users.php?status=Inactive");
-        exit();
-    }
+    $current_status = $user["student_status"] ?? "Active";
+    $new_status = ($current_status == "Active") ? "Inactive" : "Active";
+    mysqli_query($conn, "UPDATE student SET student_status = '$new_status', updated_at = NOW() WHERE studentID = '$id'");
 }
 
-header("Location: users.php?error=active_delete");
+header("Location: users.php");
 exit();
 ?>

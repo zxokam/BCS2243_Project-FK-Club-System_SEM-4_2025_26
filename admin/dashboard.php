@@ -192,7 +192,12 @@ page_start("Admin Dashboard", "dashboard");
                     <?php echo clean(ucfirst($user["student_role"])); ?>
                 </span>
             </td>
-            <td><span class="badge badge-green">Active</span></td>
+            <td>
+                <?php $student_status = $user["student_status"] ?? "Active"; ?>
+                <span class="badge <?php echo $student_status == "Active" ? "badge-green" : "badge-red"; ?>">
+                    <?php echo clean($student_status); ?>
+                </span>
+            </td>
         </tr>
         <?php } ?>
     </table>

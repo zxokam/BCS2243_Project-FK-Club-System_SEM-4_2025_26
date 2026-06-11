@@ -19,12 +19,13 @@ if (isset($_POST["save"])) {
     $intake_year = esc($conn, $_POST["intake_year"]);
     $semester = esc($conn, $_POST["enrollment_semester"]);
     $role = esc($conn, $_POST["student_role"]);
+    $student_status = esc($conn, $_POST["student_status"]);
     $password = esc($conn, $_POST["student_password"]);
 
     $sql = "INSERT INTO student
-            (studentID, recognitionID, program, intake_year, enrollment_semester, student_name, student_phone, student_email, student_password, student_role)
+            (studentID, recognitionID, program, intake_year, enrollment_semester, student_name, student_phone, student_email, student_password, student_role, student_status)
             VALUES
-            ('$studentID', 1, '$program', '$intake_year', '$semester', '$student_name', '$student_phone', '$student_email', '$password', '$role')";
+            ('$studentID', 1, '$program', '$intake_year', '$semester', '$student_name', '$student_phone', '$student_email', '$password', '$role', '$student_status')";
 
     if (mysqli_query($conn, $sql)) {
         if ($role == "committee" && $_POST["clubID"] != "" && $_POST["positionID"] != "") {
@@ -91,6 +92,13 @@ page_start("Register User", "users");
                 <select class="form-control" name="student_role" required>
                     <option value="student">Student</option>
                     <option value="committee">Club Committee</option>
+                </select>
+            </div>
+            <div>
+                <label>Account Status <span class="required">*</span></label>
+                <select class="form-control" name="student_status" required>
+                    <option value="Active" selected>Active</option>
+                    <option value="Inactive">Inactive</option>
                 </select>
             </div>
         </div>

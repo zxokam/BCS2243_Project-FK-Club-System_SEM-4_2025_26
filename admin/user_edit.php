@@ -27,6 +27,7 @@ if (isset($_POST["save"])) {
     $intake_year = esc($conn, $_POST["intake_year"]);
     $semester = esc($conn, $_POST["enrollment_semester"]);
     $role = esc($conn, $_POST["student_role"]);
+    $student_status = esc($conn, $_POST["student_status"]);
 
     $sql = "UPDATE student SET
             student_name = '$student_name',
@@ -35,7 +36,8 @@ if (isset($_POST["save"])) {
             program = '$program',
             intake_year = '$intake_year',
             enrollment_semester = '$semester',
-            student_role = '$role'
+            student_role = '$role',
+            student_status = '$student_status'
             WHERE studentID = '$id'";
 
     if (mysqli_query($conn, $sql)) {
@@ -80,6 +82,13 @@ page_start("Edit User", "users");
                 <select class="form-control" name="student_role">
                     <option value="student" <?php if ($user["student_role"] == "student") echo "selected"; ?>>Student</option>
                     <option value="committee" <?php if ($user["student_role"] == "committee") echo "selected"; ?>>Club Committee</option>
+                </select>
+            </div>
+            <div>
+                <label>Account Status</label>
+                <select class="form-control" name="student_status">
+                    <option value="Active" <?php if (($user["student_status"] ?? "Active") == "Active") echo "selected"; ?>>Active</option>
+                    <option value="Inactive" <?php if (($user["student_status"] ?? "Active") == "Inactive") echo "selected"; ?>>Inactive</option>
                 </select>
             </div>
         </div>

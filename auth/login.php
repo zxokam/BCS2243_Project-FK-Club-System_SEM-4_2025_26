@@ -65,6 +65,9 @@ if (isset($_POST["login"])) {
 
     if ($studentRow = mysqli_fetch_assoc($studentResult)) {
         if (password_match($password, $studentRow["student_password"])) {
+            if (($studentRow["student_status"] ?? "Active") == "Inactive") {
+                $error = "This account is inactive. Please contact the administrator.";
+            } else {
             $_SESSION["user_id"] = $studentRow["studentID"];
             $_SESSION["user_name"] = $studentRow["student_name"];
             $_SESSION["account_role"] = $studentRow["student_role"];
@@ -78,10 +81,13 @@ if (isset($_POST["login"])) {
                 header("Location: ../student/dashboard.php");
             }
             exit();
+            }
         }
     }
 
-    $error = "Invalid username/student ID/email or password.";
+    if ($error == "") {
+        $error = "Invalid username/student ID/email or password.";
+    }
 }
 ?>
 <!DOCTYPE html>

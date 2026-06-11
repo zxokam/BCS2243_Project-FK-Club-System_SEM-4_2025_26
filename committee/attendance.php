@@ -100,6 +100,7 @@ page_start("Attendance", "attendance");
             <td>
                 <a class="btn btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Present On Time">Present</a>
                 <a class="btn btn-light btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Late Arrival">Late</a>
+                <a class="btn btn-red btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Absent Without Notice">Absent</a>
                 <a class="btn btn-light btn-small" href="attendance_mark.php?registrationID=<?php echo clean($row["registrationID"]); ?>&eventID=<?php echo clean($eventID); ?>&status=Volunteer Helper">Volunteer</a>
 
                 <?php if ($row["attendanceID"]) { ?>
