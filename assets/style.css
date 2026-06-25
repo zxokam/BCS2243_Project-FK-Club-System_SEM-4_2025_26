@@ -346,6 +346,23 @@ a {
     margin-bottom: 16px;
 }
 
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.filter-grid .form-control {
+    margin-bottom: 0;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: end;
+}
+
+
 .table-box {
     overflow: hidden;
 }
@@ -693,8 +710,10 @@ label {
     .form-grid {
         grid-template-columns: 1fr;
     }
-    .toolbar {
+    .toolbar,
+    .filter-grid {
         flex-direction: column;
+        grid-template-columns: 1fr;
     }
 }
 

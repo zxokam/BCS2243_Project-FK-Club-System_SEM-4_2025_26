@@ -23,6 +23,13 @@ $sql = "SELECT event.*, club.club_name,
         ORDER BY event.event_date ASC";
 $result = mysqli_query($conn, $sql);
 
+$clubFilterSql = "SELECT DISTINCT club.clubID, club.club_name
+        FROM event
+        JOIN club ON event.clubID = club.clubID
+        WHERE event.event_status = 'Open'
+        ORDER BY club.club_name ASC";
+$clubFilterResult = mysqli_query($conn, $clubFilterSql);
+
 page_start("Browse Events", "browse_events");
 ?>
 <div class="page-header">
@@ -37,11 +44,48 @@ page_start("Browse Events", "browse_events");
 <?php } ?>
 
 <div class="toolbar">
-    <input class="form-control" style="margin-bottom:0;" placeholder="Search by event name, club or description...">
-    <button class="btn btn-light">Filters</button>
+    <input class="form-control" style="margin-bottom:0;" id="eventSearch" oninput="filterEventCards()" placeholder="Search by event name, club or description...">
+    <button type="button" class="btn btn-light" onclick="toggleEventFilters()">Filters</button>
 </div>
 
-<div class="grid grid-3">
+<div class="panel event-filter-panel" id="eventFilterPanel" style="display:none; margin-bottom:16px;">
+    <div class="filter-grid">
+        <div>
+            <label><b>Club</b></label>
+            <select class="form-control" id="eventClubFilter" onchange="filterEventCards()">
+                <option value="all">All clubs</option>
+                <?php while ($clubFilterRow = mysqli_fetch_assoc($clubFilterResult)) { ?>
+                    <option value="<?php echo clean($clubFilterRow["clubID"]); ?>"><?php echo clean($clubFilterRow["club_name"]); ?></option>
+                <?php } ?>
+            </select>
+        </div>
+        <div>
+            <label><b>Status</b></label>
+            <select class="form-control" id="eventStatusFilter" onchange="filterEventCards()">
+                <option value="all">All event status</option>
+                <option value="open">Open only</option>
+                <option value="full">Full only</option>
+                <option value="waiting">Waiting list open</option>
+            </select>
+        </div>
+        <div>
+            <label><b>Date</b></label>
+            <select class="form-control" id="eventDateFilter" onchange="filterEventCards()">
+                <option value="all">All dates</option>
+                <option value="upcoming">Upcoming / today</option>
+                <option value="today">Today only</option>
+                <option value="past">Past only</option>
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="button" class="btn btn-light" onclick="clearEventFilters()">Clear Filters</button>
+        </div>
+    </div>
+</div>
+
+<div id="eventNoResults" class="alert alert-error" style="display:none;">No events match your search or filters.</div>
+
+<div class="grid grid-3" id="eventList">
     <?php while ($row = mysqli_fetch_assoc($result)) {
         $registeredCount = (int)($row["total_registered"] ?? 0);
         $waitingCount = (int)($row["total_waiting"] ?? 0);
@@ -65,13 +109,18 @@ page_start("Browse Events", "browse_events");
             $cardClass = "";
         }
     ?>
-    <div class="event-card <?php echo $cardClass; ?>">
+    <div class="event-card <?php echo $cardClass; ?>"
+         data-search="<?php echo clean($row["event_title"] . " " . $row["club_name"] . " " . $row["event_description"] . " " . $row["venue"]); ?>"
+         data-club="<?php echo clean($row["clubID"]); ?>"
+         data-status="<?php echo clean($full && $waitingOpen ? "waiting" : ($full ? "full" : "open")); ?>"
+         data-date="<?php echo clean($row["event_date"]); ?>">
         <span class="badge <?php echo $badgeClass; ?>"><?php echo clean($badgeText); ?></span>
         <h3><?php echo clean($row["event_title"]); ?></h3>
         <p class="subtitle"><?php echo clean($row["event_description"]); ?></p>
         <div class="event-meta">
             📅 <?php echo clean($row["event_date"]); ?><br>
             ⏰ <?php echo clean(substr($row["start_time"], 0, 5)); ?> - <?php echo clean(substr($row["end_time"], 0, 5)); ?><br>
+            🏛️ <?php echo clean($row["club_name"]); ?><br>
             📍 <?php echo clean($row["venue"]); ?><br>
             👥 <?php echo clean($registeredCount); ?> / <?php echo clean($row["max_participants"]); ?> registered<br>
             🧾 <?php echo clean($waitingCount); ?> waiting

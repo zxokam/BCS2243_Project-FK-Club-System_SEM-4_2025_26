@@ -105,8 +105,8 @@ function page_start($title, $current) {
     echo '<meta charset="UTF-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
     echo '<title>' . clean($title) . ' - FK Club System</title>';
-    echo '<link rel="stylesheet" href="../assets/style.css?v=roleui2">';
-    echo '<script src="../assets/script.js?v=roleui2" defer></script>';
+    echo '<link rel="stylesheet" href="../assets/style.css?v=filterfix1">';
+    echo '<script src="../assets/script.js?v=filterfix2" defer></script>';
     echo '<script>window.addEventListener("pageshow",function(event){var nav=performance.getEntriesByType?performance.getEntriesByType("navigation")[0]:null;if(event.persisted||(nav&&nav.type==="back_forward")){window.location.reload();}});</script>';
     echo '</head>';
     echo '<body>';
